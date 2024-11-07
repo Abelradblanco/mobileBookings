@@ -17,27 +17,27 @@ To run the app in development mode:
 
 ```bash
 ionic serve
-
+```
 ## How to build the Application
 
 ```bash
 ng build
 ionic build
-
+```
 
 ## Build for android
 
-# download sdks
-# to download the sdk, download android studio
+1. Download sdks:  to download the sdk, download android studio
 
-# add capacitor
+## add capacitor
 ```bash
-ionic capacitor add android`
-
-# copy android into native app
+ionic capacitor add android
+```
+## copy android into native app
 ```bash
-ionic capacitor copy android`
-
-# run previous steps (in one)
+ionic capacitor copy android
+```
+## run previous steps (in one)
 ```bash
-ionic capacitor run android`
+ionic capacitor run android
+```
