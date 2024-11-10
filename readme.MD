@@ -29,7 +29,7 @@ ionic build
 
 1. Download sdks:  to download the sdk, download android studio
 
-## add capacitor
+# add capacitor
 ```bash
 ionic capacitor add android
 ```
