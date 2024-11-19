@@ -45,9 +45,9 @@
           <ion-item>
             <ion-label 
               position="floating"
-              formControlName="price">Price</ion-label>
+              >Price</ion-label>
             <ion-input 
-              type="number"></ion-input>
+              type="number" formControlName="price"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -55,7 +55,7 @@
         <ion-col size-sm="3" offset-sm="2">
           <ion-item>
             <ion-label position="floating">Available from</ion-label>
-            <ion-datetime formControlName="dateFrom" min="2022-01-01" max="2027-12-31"></ion-datetime>
+            <ion-datetime formControlName="dateFrom" min="2022-01-01" max="2027-12-31" ></ion-datetime>
           </ion-item>
         </ion-col>
         <ion-col size-sm="3" offset-sm="2">
