@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, ModalController, ActionSheetController, LoadingController } from '@ionic/angular';
+import { NavController, ModalController, ActionSheetController, LoadingController, AlertController } from '@ionic/angular';
 
 import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
@@ -17,6 +17,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
   place: Place;
   isBookable = false;
+  isLoading = false;
   private placeSub: Subscription;
 
   constructor(
@@ -27,7 +28,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetCtrl: ActionSheetController,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private authService: AuthService  
+    private authService: AuthService,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit() {
@@ -36,12 +38,30 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
-      this.placeSub = this.placesService.getPlace(
+      this.isLoading = true;
+      this.placeSub = this.placesService
+      .getPlace(
         paramMap.get('placeId'))
         .subscribe(place => {
         this.place = place;
         this.isBookable = place.userId !== this.authService.userId;
-      });
+        this.isLoading = false;
+      }, error => {
+
+        this.alertCtrl.create({
+          header: 'An error occurred!',
+          message: 'Could not fetch the place.',
+          buttons: [
+            {
+              text: 'Okay',
+              handler: () => {
+                this.navCtrl.navigateBack('/places/tabs/discover');
+                }
+            }
+          ]
+        })
+        .then(alertEl => alertEl.present());
+    });
     });
   }
 
