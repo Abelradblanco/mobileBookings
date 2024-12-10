@@ -59,9 +59,10 @@
             Switch to {{ isLogin ? 'Signup' : 'Login' }}
             </ion-button>
           <!-- <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner> -->
-          <ion-button type="submit" expand="block" color="primary" (click)="onLogin()" class="login-button">
+          <ion-button type="submit" expand="block" color="primary"
+          [disabled]="!f.valid" class="login-button">
           <ion-icon slot="start" name="log-in-outline"></ion-icon>
-            Login
+          {{ isLogin ? 'Login' : 'Signup' }}
           </ion-button>
         </ion-col>
       </ion-row>

@@ -40,23 +40,32 @@ export class BookingService{
         guestNumber: number,
         dateFrom: Date,
         dateTo: Date
-    ){
+    ) {
         let generatedId: string;
-        const newBooking = new Booking(
-            Math.random().toString(),
-            placeId,
-            this.authService.userId,
-            placeTitle,
-            placeImage, 
-            firstName,
-            lastName,
-            guestNumber,
-            dateFrom,
-            dateTo            
-         );
-         return this.http.post<{name: string}>('https://ionic-mobile-booking-default-rtdb.firebaseio.com/bookings.json',
-            {...newBooking, id: null}
-         ).pipe(switchMap(resData => {
+        let newBooking: Booking;
+        return this.authService.userId.pipe(
+            take(1),
+            switchMap(userId => {
+            if(!userId){
+                throw new Error("No user id found!")
+            }
+           newBooking = new Booking(
+                Math.random().toString(),
+                placeId,
+                userId,
+                placeTitle,
+                placeImage, 
+                firstName,
+                lastName,
+                guestNumber,
+                dateFrom,
+                dateTo            
+             );
+             return this.http.post<{name: string}>('https://ionic-mobile-booking-default-rtdb.firebaseio.com/bookings.json',
+                {...newBooking, id: null}
+             );
+        }),
+        switchMap(resData => {
             generatedId =  resData.name;
             return this.bookings;
          }),
@@ -65,7 +74,7 @@ export class BookingService{
             newBooking.id = generatedId;
             this._bookings.next(bookings.concat(newBooking));
         })
-        );
+    );
     }
 
     cancelBooking(bookingId: string){
@@ -82,33 +91,49 @@ export class BookingService{
         }));
     }
 
-    fetchBookings(){
-        return this.http
-        .get<{[key: string] : BookingData}>(`https://ionic-mobile-booking-default-rtdb.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${
-            this.authService.userId}"`)
-            .pipe(map(bookingData => {
-                const bookings =[];
-                for (const key in bookingData) {
-                    if (bookingData.hasOwnProperty(key)) {
-                        bookings.push(
-                            new Booking(
-                                key, 
-                                bookingData[key].placeId, 
-                                bookingData[key].userId,
-                                bookingData[key].placeTitle,
-                                bookingData[key].placeImage,
-                                bookingData[key].firstName,
-                                bookingData[key].lastName,
-                                bookingData[key].guestNumber,
-                                new Date(bookingData[key].bookedFrom),
-                                new Date(bookingData[key].bookedTo)
-                            ));
-                    }
-                }
-                return bookings;
-            }), tap(bookings => {
-                this._bookings.next(bookings);
-            })
+    fetchBookings() {
+        let fetchedUserId: string;
+        return this.authService.userId.pipe(
+          take(1),
+          switchMap(userId => {
+            if (!userId) {
+              throw new Error('User not found!');
+            }
+            fetchedUserId = userId;
+            return this.authService.token;
+          }),
+          take(1),
+          switchMap(token => {
+            return this.http.get<{ [key: string]: BookingData }>(
+              `https://ionic-mobile-booking-default-rtdb.firebaseio.com/bookings.json?orderBy="userId"&equalTo="${
+            this.authService.userId}"`
+            );
+          }),
+          map(bookingData => {
+            const bookings = [];
+            for (const key in bookingData) {
+              if (bookingData.hasOwnProperty(key)) {
+                bookings.push(
+                  new Booking(
+                    key,
+                    bookingData[key].placeId,
+                    bookingData[key].userId,
+                    bookingData[key].placeTitle,
+                    bookingData[key].placeImage,
+                    bookingData[key].firstName,
+                    bookingData[key].lastName,
+                    bookingData[key].guestNumber,
+                    new Date(bookingData[key].bookedFrom),
+                    new Date(bookingData[key].bookedTo)
+                  )
+                );
+              }
+            }
+            return bookings;
+          }),
+          tap(bookings => {
+            this._bookings.next(bookings);
+          })
         );
-    }
+      }
 }
